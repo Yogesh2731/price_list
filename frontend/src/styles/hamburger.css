@@ -1,0 +1,209 @@
+/* ============================================================
+   Mobile Hamburger / Slide-in Drawer
+   ============================================================ */
+
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(2px);
+}
+
+.menu-backdrop.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.menu-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 300px;
+  max-width: 88vw;
+  background: #fff;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.2);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-drawer.open {
+  transform: translateX(0);
+}
+
+/* Header */
+.menu-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.menu-drawer__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.menu-drawer__logo-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #2196f3, #0ea5e9);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-drawer__logo-icon img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: brightness(10);
+}
+
+.menu-drawer__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+}
+
+.menu-close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.menu-close-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Nav links */
+.menu-drawer__nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0.75rem 0;
+}
+
+.menu-drawer__link {
+  display: block;
+  padding: 0.7rem 0.75rem;
+  font-size: 0.925rem;
+  font-weight: 500;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.menu-drawer__link:hover {
+  background: #f1f5f9;
+  color: #2196f3;
+  text-decoration: none;
+}
+
+.menu-drawer__divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 0.75rem 1.25rem;
+}
+
+/* CTA buttons */
+.menu-drawer__actions {
+  display: flex;
+  flex-direction: column;
+  padding: 0 0.75rem;
+  gap: 0.5rem;
+}
+
+.menu-drawer__link--primary {
+  background: #2196f3;
+  color: #fff !important;
+  border-radius: 10px;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.35);
+}
+
+.menu-drawer__link--primary:hover {
+  background: #1976d2 !important;
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.menu-drawer__link--outline {
+  background: transparent;
+  color: #2196f3 !important;
+  border: 1.5px solid #2196f3;
+  border-radius: 10px;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.menu-drawer__link--outline:hover {
+  background: rgba(33, 150, 243, 0.06) !important;
+  text-decoration: none;
+}
+
+/* Language selector */
+.menu-drawer__lang {
+  margin-top: auto;
+  padding: 1rem 1.25rem 1.75rem;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.menu-drawer__lang .lang-btn {
+  flex: 1;
+  justify-content: center;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  opacity: 1;
+  gap: 0.5rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.menu-drawer__lang .lang-btn img {
+  width: 22px;
+  height: 15px;
+}
+
+.menu-drawer__lang .lang-btn span {
+  font-size: 0.825rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.menu-drawer__lang .lang-btn.active {
+  border-color: #2196f3;
+  background: rgba(33, 150, 243, 0.06);
+}
+
+.menu-drawer__lang .lang-btn.active span {
+  color: #2196f3;
+}
