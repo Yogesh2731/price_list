@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/pricelist.css';
+import { useToast } from '../context/ToastContext.jsx';
+import SessionExpiredModal from '../components/SessionExpiredModal.jsx';
 
 const FLAG_SE  = 'https://storage.123fakturere.no/public/flags/SE.png';
 const FLAG_GB  = 'https://storage.123fakturere.no/public/flags/GB.png';
@@ -48,7 +50,7 @@ function SidebarIcon({ type }) {
   }
 }
 
-/* Skeleton row */
+/* Skeleton row─ */
 function SkeletonRow() {
   return (
     <div className="pl-row pl-row--skeleton">
@@ -65,24 +67,37 @@ function SkeletonRow() {
   );
 }
 
-/* Main component */
+/* ══════════════════════════════════════════════════════════
+   Main component
+   ══════════════════════════════════════════════════════════ */
+/* JWT expiry helper */
+function getTokenExpiry(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp ? payload.exp * 1000 : null;
+  } catch { return null; }
+}
+
 export default function Pricelist() {
   const navigate = useNavigate();
+  const addToast = useToast();
 
-  const [products, setProducts]       = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState('');
-  const [searchCode, setSearchCode]   = useState('');
-  const [searchName, setSearchName]   = useState('');
-  const [activeRow, setActiveRow]     = useState(null);
-  const [openMenu, setOpenMenu]       = useState(null);
-  const [lang, setLang]               = useState('en');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [savingRows, setSavingRows]   = useState(new Set());
-  const [savedRows, setSavedRows]     = useState(new Set());
+  const [products, setProducts]           = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState('');
+  const [searchCode, setSearchCode]       = useState('');
+  const [searchName, setSearchName]       = useState('');
+  const [activeRow, setActiveRow]         = useState(null);
+  const [openMenu, setOpenMenu]           = useState(null);
+  const [lang, setLang]                   = useState('en');
+  const [sidebarOpen, setSidebarOpen]     = useState(false);
+  const [savingRows, setSavingRows]       = useState(new Set());
+  const [savedRows, setSavedRows]         = useState(new Set());
+  const [sessionExpired, setSessionExpired] = useState(false);
 
-  const user       = JSON.parse(localStorage.getItem('user') || '{}');
-  const activeRef  = useRef(null);
+  const user      = JSON.parse(localStorage.getItem('user') || '{}');
+  const activeRef = useRef(null);
+  const expiryTimer = useRef(null);
 
   function authHeaders() {
     return {
@@ -98,11 +113,26 @@ export default function Pricelist() {
   }
 
   function handle401(res) {
-    if (res.status === 401) { handleLogout(); return true; }
+    if (res.status === 401) {
+      setSessionExpired(true);
+      return true;
+    }
     return false;
   }
 
-  /* Fetch product */
+  /* DAY 4: Set expiry timer so modal shows exactly when token dies */
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const expiry = getTokenExpiry(token);
+    if (!expiry) return;
+    const msLeft = expiry - Date.now();
+    if (msLeft <= 0) { setSessionExpired(true); return; }
+    expiryTimer.current = setTimeout(() => setSessionExpired(true), msLeft);
+    return () => clearTimeout(expiryTimer.current);
+  }, []);
+
+  /* Fetch products */
   useEffect(() => { fetchProducts(); }, []);
 
   async function fetchProducts() {
@@ -139,13 +169,20 @@ export default function Pricelist() {
       if (res.ok) {
         setSavedRows(prev => new Set(prev).add(id));
         setTimeout(() => setSavedRows(prev => { const s = new Set(prev); s.delete(id); return s; }), 1800);
+        // DAY 4: toast on save success
+        addToast('Changes saved', 'success', 2000);
+      } else {
+        // DAY 4: toast on save failure
+        addToast('Failed to save changes', 'error', 3000);
       }
     } catch (err) {
       console.error('Save failed:', err);
+      // DAY 4: toast on network error
+      addToast('Network error — changes not saved', 'error', 3500);
     } finally {
       setSavingRows(prev => { const s = new Set(prev); s.delete(id); return s; });
     }
-  }, []);
+  }, [addToast]);
 
   const debouncedSave = useDebounce(saveField, 650);
 
@@ -195,10 +232,28 @@ export default function Pricelist() {
     return c;
   }
 
+  /* DAY 4: Tab key moves between inputs in the same row */
+  function handlePillKeyDown(e, rowId, currentField) {
+    if (e.key !== 'Tab') return;
+    const visibleFields = ['product_code', 'name', 'in_price', 'price', 'unit', 'in_stock', 'description'];
+    const visibleInputs = Array.from(
+      document.querySelectorAll(`[data-rowid="${rowId}"] .pl-pill-input`)
+    );
+    const idx = visibleInputs.indexOf(e.target);
+    if (e.shiftKey) {
+      if (idx > 0) { e.preventDefault(); visibleInputs[idx - 1].focus(); }
+    } else {
+      if (idx < visibleInputs.length - 1) { e.preventDefault(); visibleInputs[idx + 1].focus(); }
+    }
+  }
+
   return (
+    <>
+    {/* DAY 4: Session expired modal */}
+    {sessionExpired && <SessionExpiredModal onLogin={handleLogout} />}
     <div className="pl-root">
 
-      {/* Blue top bar */}
+      {/* ══ Blue top bar ══════════════════════════════════════ */}
       <header className="pl-topbar">
         <div className="pl-topbar__left">
           <button className="pl-hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
@@ -225,7 +280,7 @@ export default function Pricelist() {
         </div>
       </header>
 
-      {/* Layout */}
+      {/* ══ Layout ════════════════════════════════════════════ */}
       <div className="pl-layout">
 
         {/* Sidebar backdrop */}
@@ -401,6 +456,7 @@ export default function Pricelist() {
                   <div
                     key={p.id}
                     className={rowClass(p.id)}
+                    data-rowid={p.id}
                     onClick={() => setActiveRow(p.id)}
                   >
                     {/* Arrow */}
@@ -420,6 +476,7 @@ export default function Pricelist() {
                         value={p.product_code || ''}
                         onClick={e => e.stopPropagation()}
                         onChange={e => handleFieldChange(p.id, 'product_code', e.target.value)}
+                        onKeyDown={e => handlePillKeyDown(e, p.id)}
                       />
                     </div>
 
@@ -430,6 +487,7 @@ export default function Pricelist() {
                         value={p.name || ''}
                         onClick={e => e.stopPropagation()}
                         onChange={e => handleFieldChange(p.id, 'name', e.target.value)}
+                        onKeyDown={e => handlePillKeyDown(e, p.id)}
                       />
                     </div>
 
@@ -441,6 +499,7 @@ export default function Pricelist() {
                         value={p.in_price ?? ''}
                         onClick={e => e.stopPropagation()}
                         onChange={e => handleFieldChange(p.id, 'in_price', parseFloat(e.target.value) || 0)}
+                        onKeyDown={e => handlePillKeyDown(e, p.id)}
                       />
                     </div>
 
@@ -452,6 +511,7 @@ export default function Pricelist() {
                         value={p.price ?? ''}
                         onClick={e => e.stopPropagation()}
                         onChange={e => handleFieldChange(p.id, 'price', parseFloat(e.target.value) || 0)}
+                        onKeyDown={e => handlePillKeyDown(e, p.id)}
                       />
                     </div>
 
@@ -462,6 +522,7 @@ export default function Pricelist() {
                         value={p.unit || ''}
                         onClick={e => e.stopPropagation()}
                         onChange={e => handleFieldChange(p.id, 'unit', e.target.value)}
+                        onKeyDown={e => handlePillKeyDown(e, p.id)}
                       />
                     </div>
 
@@ -473,6 +534,7 @@ export default function Pricelist() {
                         value={p.in_stock ?? ''}
                         onClick={e => e.stopPropagation()}
                         onChange={e => handleFieldChange(p.id, 'in_stock', parseInt(e.target.value) || 0)}
+                        onKeyDown={e => handlePillKeyDown(e, p.id)}
                       />
                     </div>
 
@@ -483,6 +545,7 @@ export default function Pricelist() {
                         value={p.description || ''}
                         onClick={e => e.stopPropagation()}
                         onChange={e => handleFieldChange(p.id, 'description', e.target.value)}
+                        onKeyDown={e => handlePillKeyDown(e, p.id)}
                       />
                     </div>
 
@@ -531,5 +594,6 @@ export default function Pricelist() {
         </main>
       </div>
     </div>
+    </>
   );
 }

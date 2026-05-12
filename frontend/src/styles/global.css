@@ -5,8 +5,8 @@
 }
 
 :root {
-  --color-primary:    #2563eb;
-  --color-primary-h:  #1d4ed8;
+  --color-primary:    #2196f3;
+  --color-primary-h:  #1976d2;
   --color-secondary:  #1e293b;
   --color-accent:     #0ea5e9;
   --color-text:       #1e293b;
@@ -27,10 +27,10 @@
   --font-size-2xl:  1.5rem;
   --font-size-3xl:  1.875rem;
 
-  --radius-sm:  4px;
-  --radius-md:  8px;
-  --radius-lg:  12px;
-  --radius-xl:  16px;
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
   --radius-full: 9999px;
 
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
@@ -41,6 +41,7 @@
   --transition: 0.2s ease;
 }
 
+/* Base */
 html, body {
   height: 100%;
   font-family: var(--font-family);
@@ -49,20 +50,17 @@ html, body {
   background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* DAY 4: prevent horizontal scroll on mobile */
+  overflow-x: hidden;
 }
 
-#root {
-  height: 100%;
-}
+#root { height: 100%; }
 
 a {
   color: var(--color-primary);
   text-decoration: none;
 }
-
-a:hover {
-  text-decoration: underline;
-}
+a:hover { text-decoration: underline; }
 
 button {
   cursor: pointer;
@@ -71,4 +69,75 @@ button {
 
 input, select, textarea {
   font-family: var(--font-family);
+}
+
+/* DAY 4: Remove number input spinners */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] { -moz-appearance: textfield; }
+
+/* DAY 4: Custom scrollbar (Webkit) */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* DAY 4: Focus-visible ring (keyboard only)─ */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* Remove default outline for mouse users */
+:focus:not(:focus-visible) { outline: none; }
+
+/* DAY 4: Print styles─ */
+@media print {
+  /* Hide nav, topbar, sidebar, actions */
+  .pl-topbar,
+  .pl-sidebar,
+  .pl-sidebar-backdrop,
+  .pl-toolbar,
+  .pl-result-count,
+  .login-header,
+  .hamburger-btn,
+  .pl-hamburger,
+  .pl-dots-btn,
+  .pl-dots-menu,
+  .toast-container,
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  body { background: #fff; color: #000; }
+
+  .pl-root, .pl-layout, .pl-main { display: block; }
+
+  /* Show all columns when printing */
+  .desktop-col,
+  .landscape-col {
+    display: flex !important;
+  }
+
+  /* Make pill inputs look like plain text */
+  .pl-pill-input {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    border-radius: 0 !important;
+  }
+
+  .pl-list-container {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .pl-row { break-inside: avoid; }
 }

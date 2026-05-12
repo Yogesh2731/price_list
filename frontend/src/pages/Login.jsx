@@ -16,6 +16,12 @@ const NAV_LINKS = [
   { key: 'nav.contact',  label: 'Contact',  href: '#' },
 ];
 
+const ERROR_MESSAGES = {
+  'email.required': { sv: 'E-postadress krävs',              en: 'Email address is required' },
+  'email.invalid':  { sv: 'Ange en giltig e-postadress',     en: 'Please enter a valid email address' },
+  'pwd.required':   { sv: 'Lösenord krävs',                  en: 'Password is required' },
+};
+
 export default function Login() {
   const navigate = useNavigate();
 
@@ -51,26 +57,33 @@ export default function Login() {
     return t[key] || fallback || key;
   }
 
+  // Returns error keys (not translated strings) so that switching language
+  // instantly re-renders the correct text without re-running validation.
   function validate(field, value) {
     const errs = { ...errors };
     if (field === 'email') {
       if (!value.trim()) {
-        errs.email = tr('login.email', 'E-postadress') + ' is required';
+        errs.email = 'email.required';
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        errs.email = 'Please enter a valid email address';
+        errs.email = 'email.invalid';
       } else {
         delete errs.email;
       }
     }
     if (field === 'password') {
       if (!value) {
-        errs.password = tr('login.password', 'Lösenord') + ' is required';
+        errs.password = 'pwd.required';
       } else {
         delete errs.password;
       }
     }
     setErrors(errs);
     return errs;
+  }
+
+  // Translate an error key using ERROR_MESSAGES, falling back to the key itself.
+  function te(key) {
+    return ERROR_MESSAGES[key]?.[lang] || key;
   }
 
   function handleBlur(field) {
@@ -237,10 +250,11 @@ export default function Login() {
                   onBlur={() => handleBlur('email')}
                   placeholder={tr('login.email', 'E-postadress')}
                   autoComplete="email"
+                  autoFocus
                 />
               </div>
               {touched.email && errors.email && (
-                <p className="field-error">{errors.email}</p>
+                <p className="field-error">{te(errors.email)}</p>
               )}
             </div>
 
@@ -286,7 +300,7 @@ export default function Login() {
                 </button>
               </div>
               {touched.password && errors.password && (
-                <p className="field-error">{errors.password}</p>
+                <p className="field-error">{te(errors.password)}</p>
               )}
             </div>
 
