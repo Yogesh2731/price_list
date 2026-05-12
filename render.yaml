@@ -9,7 +9,7 @@ services:
     name:  sow-trial-app
     env:   node
     plan:  free
-    region: frankfurt    # closest to Sweden (the client)
+    region: frankfurt    # closest to Sweden for lowest latency
 
     # Render runs this to build the project
     buildCommand: npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend
