@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const translationsRoutes = require('./routes/translations');
+const productsRoutes = require('./routes/products');
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.urlencoded({extend: true}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/translations', translationsRoutes);
+app.use('/api/products', productsRoutes);
 
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
