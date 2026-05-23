@@ -1,4 +1,4 @@
-# 123 Fakturera — Invoice Management Mini App
+# Invoice Management Mini App
 
 A full-stack web application built for practice, replicating the UI/UX of a real-world Swedish invoicing and accounting platform. The goal was to sharpen skills in building production-grade apps with a modern React frontend, a secure Node.js backend, and a relational PostgreSQL database — all deployed on a cloud platform.
 
