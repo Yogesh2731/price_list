@@ -3,7 +3,7 @@ import '../styles/hamburger.css';
 
 const LOGO_URL = 'https://storage.123fakturere.no/public/icons/diamond.png';
 
-export default function HamburgerMenu({ open, onClose, navLinks, tr, lang, setLang, flagSE, flagGB }) {
+export default function HamburgerMenu({ open, onClose, navLinks, tr }) {
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -57,26 +57,6 @@ export default function HamburgerMenu({ open, onClose, navLinks, tr, lang, setLa
           <a href="#" className="menu-drawer__link menu-drawer__link--outline" onClick={onClose}>
             {tr('nav.register', 'Register')}
           </a>
-        </div>
-
-        {/* Language switcher */}
-        <div className="menu-drawer__lang">
-          <button
-            className={`lang-btn ${lang === 'sv' ? 'active' : ''}`}
-            onClick={() => setLang('sv')}
-            title="Svenska"
-          >
-            <img src={flagSE} alt="SV" />
-            <span>Svenska</span>
-          </button>
-          <button
-            className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
-            onClick={() => setLang('en')}
-            title="English"
-          >
-            <img src={flagGB} alt="EN" />
-            <span>English</span>
-          </button>
         </div>
       </div>
     </>

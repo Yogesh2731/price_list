@@ -4,8 +4,6 @@ import HamburgerMenu from '../components/HamburgerMenu.jsx';
 import '../styles/login.css';
 
 const LOGO_URL = 'https://storage.123fakturere.no/public/icons/diamond.png';
-const FLAG_SE  = 'https://storage.123fakturere.no/public/flags/SE.png';
-const FLAG_GB  = 'https://storage.123fakturere.no/public/flags/GB.png';
 const BG_URL   = 'https://storage.123fakturera.se/public/wallpapers/sverige43.jpg';
 
 const NAV_LINKS = [
@@ -16,16 +14,9 @@ const NAV_LINKS = [
   { key: 'nav.contact',  label: 'Contact',  href: '#' },
 ];
 
-const ERROR_MESSAGES = {
-  'email.required': { sv: 'E-postadress krävs',              en: 'Email address is required' },
-  'email.invalid':  { sv: 'Ange en giltig e-postadress',     en: 'Please enter a valid email address' },
-  'pwd.required':   { sv: 'Lösenord krävs',                  en: 'Password is required' },
-};
-
 export default function Login() {
   const navigate = useNavigate();
 
-  const [lang, setLang]           = useState('sv');
   const [t, setT]                 = useState({});
   const [email, setEmail]         = useState('');
   const [password, setPassword]   = useState('');
@@ -42,11 +33,11 @@ export default function Login() {
   }, [navigate]);
 
   useEffect(() => {
-    fetch(`/api/translations/${lang}`)
+    fetch('/api/translations/en')
       .then(r => r.json())
       .then(d => setT(d.translations || {}))
       .catch(() => setT({}));
-  }, [lang]);
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem('rememberedEmail');
@@ -57,33 +48,26 @@ export default function Login() {
     return t[key] || fallback || key;
   }
 
-  // Returns error keys (not translated strings) so that switching language
-  // instantly re-renders the correct text without re-running validation.
   function validate(field, value) {
     const errs = { ...errors };
     if (field === 'email') {
       if (!value.trim()) {
-        errs.email = 'email.required';
+        errs.email = 'Email address is required';
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        errs.email = 'email.invalid';
+        errs.email = 'Please enter a valid email address';
       } else {
         delete errs.email;
       }
     }
     if (field === 'password') {
       if (!value) {
-        errs.password = 'pwd.required';
+        errs.password = 'Password is required';
       } else {
         delete errs.password;
       }
     }
     setErrors(errs);
     return errs;
-  }
-
-  // Translate an error key using ERROR_MESSAGES, falling back to the key itself.
-  function te(key) {
-    return ERROR_MESSAGES[key]?.[lang] || key;
   }
 
   function handleBlur(field) {
@@ -151,28 +135,8 @@ export default function Login() {
             ))}
           </nav>
 
-          {/* Right side: lang + auth buttons + hamburger */}
+          {/* Right side: auth buttons + hamburger */}
           <div className="login-header__right">
-            {/* Language switcher */}
-            <div className="lang-switcher">
-              <button
-                className={`lang-btn ${lang === 'sv' ? 'active' : ''}`}
-                onClick={() => setLang('sv')}
-                title="Svenska"
-              >
-                <img src={FLAG_SE} alt="SV" />
-                <span className="lang-label">SV</span>
-              </button>
-              <button
-                className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
-                onClick={() => setLang('en')}
-                title="English"
-              >
-                <img src={FLAG_GB} alt="EN" />
-                <span className="lang-label">EN</span>
-              </button>
-            </div>
-
             {/* Desktop auth CTAs */}
             <div className="header-ctas">
               <a href="#" className="header-cta-link">{tr('nav.login', 'Log in')}</a>
@@ -197,10 +161,6 @@ export default function Login() {
         onClose={() => setMenuOpen(false)}
         navLinks={NAV_LINKS}
         tr={tr}
-        lang={lang}
-        setLang={setLang}
-        flagSE={FLAG_SE}
-        flagGB={FLAG_GB}
       />
 
       {/* ── Main / Card ── */}
@@ -212,9 +172,9 @@ export default function Login() {
             <img src={LOGO_URL} alt="123 Fakturera" />
           </div>
 
-          <h1 className="login-card__title">{tr('login.title', 'Logga in')}</h1>
+          <h1 className="login-card__title">{tr('login.title', 'Log in')}</h1>
           <p className="login-card__subtitle">
-            {tr('login.subtitle', 'Faktura- & bokföringsprogram')}
+            {tr('login.subtitle', 'Invoice & accounting program')}
           </p>
 
           {/* Global error */}
@@ -234,7 +194,7 @@ export default function Login() {
             {/* Email */}
             <div className={`form-group ${touched.email && errors.email ? 'has-error' : ''}`}>
               <label htmlFor="login-email" className="form-label">
-                {tr('login.email', 'E-postadress')}
+                {tr('login.email', 'Email address')}
               </label>
               <div className="input-wrap">
                 <svg className="input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -248,20 +208,20 @@ export default function Login() {
                   value={email}
                   onChange={e => { setEmail(e.target.value); if (touched.email) validate('email', e.target.value); }}
                   onBlur={() => handleBlur('email')}
-                  placeholder={tr('login.email', 'E-postadress')}
+                  placeholder={tr('login.email', 'Email address')}
                   autoComplete="email"
                   autoFocus
                 />
               </div>
               {touched.email && errors.email && (
-                <p className="field-error">{te(errors.email)}</p>
+                <p className="field-error">{errors.email}</p>
               )}
             </div>
 
             {/* Password */}
             <div className={`form-group ${touched.password && errors.password ? 'has-error' : ''}`}>
               <label htmlFor="login-password" className="form-label">
-                {tr('login.password', 'Lösenord')}
+                {tr('login.password', 'Password')}
               </label>
               <div className="input-wrap">
                 <svg className="input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -275,7 +235,7 @@ export default function Login() {
                   value={password}
                   onChange={e => { setPassword(e.target.value); if (touched.password) validate('password', e.target.value); }}
                   onBlur={() => handleBlur('password')}
-                  placeholder={tr('login.password', 'Lösenord')}
+                  placeholder={tr('login.password', 'Password')}
                   autoComplete="current-password"
                 />
                 <button
@@ -300,7 +260,7 @@ export default function Login() {
                 </button>
               </div>
               {touched.password && errors.password && (
-                <p className="field-error">{te(errors.password)}</p>
+                <p className="field-error">{errors.password}</p>
               )}
             </div>
 
@@ -313,10 +273,10 @@ export default function Login() {
                   onChange={e => setRemember(e.target.checked)}
                 />
                 <span className="checkbox-custom" />
-                <span>{tr('login.remember_me', 'Kom ihåg mig')}</span>
+                <span>{tr('login.remember_me', 'Remember me')}</span>
               </label>
               <a href="#" className="forgot-link">
-                {tr('login.forgot', 'Glömt lösenordet?')}
+                {tr('login.forgot', 'Forgot password?')}
               </a>
             </div>
 
@@ -327,25 +287,25 @@ export default function Login() {
             >
               {loading
                 ? <span className="btn-spinner" />
-                : tr('login.button', 'Logga in')
+                : tr('login.button', 'Log in')
               }
             </button>
           </form>
 
           {/* Divider */}
           <div className="card-divider">
-            <span>{tr('login.no_account', 'Har du inget konto?')}</span>
+            <span>{tr('login.no_account', "Don't have an account?")}</span>
           </div>
 
           {/* Register link */}
           <a href="#" className="register-link">
-            {tr('login.register', 'Registrera dig gratis')}
+            {tr('login.register', 'Register for free')}
           </a>
 
           {/* Terms */}
           <p className="terms-text">
-            {tr('login.terms', 'Genom att logga in godkänner du våra')}{' '}
-            <a href="#">{tr('login.terms_link', 'användarvillkor')}</a>
+            {tr('login.terms', 'By logging in, you accept our')}{' '}
+            <a href="#">{tr('login.terms_link', 'terms of service')}</a>
           </p>
         </div>
       </main>
